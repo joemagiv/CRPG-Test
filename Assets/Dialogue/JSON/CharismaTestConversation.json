@@ -1,0 +1,172 @@
+{
+  "conversations": [
+    {
+      "title": "CharismaTest",
+      "description": "A conversation with a charisma stat check",
+      "entries": [
+        {
+          "id": 1,
+          "dialogueEntry": {
+            "actorId": 0,
+            "conversationId": 1,
+            "dialogueText": "Hello there, traveler! I have a proposition for you.",
+            "isPlayer": false,
+            "isStart": true,
+            "conditions": [],
+            "sequences": []
+          }
+        },
+        {
+          "id": 2,
+          "dialogueEntry": {
+            "actorId": 1,
+            "conversationId": 1,
+            "dialogueText": "I'm listening.",
+            "isPlayer": true,
+            "isStart": false,
+            "conditions": [],
+            "sequences": [],
+            "links": [3]
+          }
+        },
+        {
+          "id": 3,
+          "dialogueEntry": {
+            "actorId": 0,
+            "conversationId": 1,
+            "dialogueText": "Excellent! I need someone to convince the town guard to let my shipment through. Are you up for the task?",
+            "isPlayer": false,
+            "isStart": false,
+            "conditions": [],
+            "sequences": []
+          }
+        },
+        {
+          "id": 4,
+          "dialogueEntry": {
+            "actorId": 1,
+            "conversationId": 1,
+            "dialogueText": "Absolutely! I'm very persuasive.",
+            "isPlayer": true,
+            "isStart": false,
+            "conditions": [
+              {
+                "luaCondition": "CheckStatRoll(\"Charisma\", 15)"
+              }
+            ],
+            "sequences": [],
+            "links": [5, 6]
+          }
+        },
+        {
+          "id": 5,
+          "dialogueEntry": {
+            "actorId": 0,
+            "conversationId": 1,
+            "dialogueText": "*impressed* You seem confident! The guard is over there. Good luck!",
+            "isPlayer": false,
+            "isStart": false,
+            "conditions": [
+              {
+                "luaCondition": "CheckStatRoll(\"Charisma\", 15)"
+              }
+            ],
+            "sequences": [
+              {
+                "sequence": "SetVariable(\"Charisma\", GetVariable(\"Charisma\") + 1); ShowAlert(\"Your Charisma increased by 1!\");"
+              }
+            ]
+          }
+        },
+        {
+          "id": 6,
+          "dialogueEntry": {
+            "actorId": 0,
+            "conversationId": 1,
+            "dialogueText": "*skeptical* Hmm, maybe this isn't such a good idea after all...",
+            "isPlayer": false,
+            "isStart": false,
+            "conditions": [
+              {
+                "luaCondition": "!CheckStatRoll(\"Charisma\", 15)"
+              }
+            ],
+            "sequences": [
+              {
+                "sequence": "SetVariable(\"Reputation\", GetVariable(\"Reputation\") - 1); ShowAlert(\"Your Reputation decreased by 1!\");"
+              }
+            ]
+          }
+        },
+        {
+          "id": 7,
+          "dialogueEntry": {
+            "actorId": 1,
+            "conversationId": 1,
+            "dialogueText": "I'll try, but no promises.",
+            "isPlayer": true,
+            "isStart": false,
+            "conditions": [],
+            "sequences": [],
+            "links": [8]
+          }
+        },
+        {
+          "id": 8,
+          "dialogueEntry": {
+            "actorId": 0,
+            "conversationId": 1,
+            "dialogueText": "Well, do your best. The guard can be quite stubborn.",
+            "isPlayer": false,
+            "isStart": false,
+            "conditions": [],
+            "sequences": []
+          }
+        },
+        {
+          "id": 9,
+          "dialogueEntry": {
+            "actorId": 1,
+            "conversationId": 1,
+            "dialogueText": "Not interested.",
+            "isPlayer": true,
+            "isStart": false,
+            "conditions": [],
+            "sequences": [],
+            "links": [10]
+          }
+        },
+        {
+          "id": 10,
+          "dialogueEntry": {
+            "actorId": 0,
+            "conversationId": 1,
+            "dialogueText": "Suit yourself. Maybe someone else will help me then.",
+            "isPlayer": false,
+            "isStart": false,
+            "conditions": [],
+            "sequences": []
+          }
+        }
+      ]
+    }
+  ],
+  "actors": [
+    {
+      "id": 0,
+      "name": "NPC",
+      "displayName": "Mysterious Merchant",
+      "description": "A merchant with a proposition",
+      "portrait": "",
+      "color": "#9966CC"
+    },
+    {
+      "id": 1,
+      "name": "Player",
+      "displayName": "Player",
+      "description": "The player character",
+      "portrait": "",
+      "color": "#FFFFFF"
+    }
+  ]
+}

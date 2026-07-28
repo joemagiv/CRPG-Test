@@ -1,0 +1,109 @@
+{
+  "conversations": [
+    {
+      "title": "CharismaTest",
+      "entries": [
+        {
+          "id": 1,
+          "actor": "NPC",
+          "conversation": "CharismaTest",
+          "dialogueText": "Hello there, traveler! I have a proposition for you.",
+          "isPlayer": false,
+          "isStart": true
+        },
+        {
+          "id": 2,
+          "actor": "Player",
+          "conversation": "CharismaTest",
+          "dialogueText": "I'm listening.",
+          "isPlayer": true,
+          "destinationEntry": 3
+        },
+        {
+          "id": 3,
+          "actor": "NPC",
+          "conversation": "CharismaTest",
+          "dialogueText": "Excellent! I need someone to convince the town guard to let my shipment through. Are you up for the task?",
+          "isPlayer": false
+        },
+        {
+          "id": 4,
+          "actor": "Player",
+          "conversation": "CharismaTest",
+          "dialogueText": "Absolutely! I'm very persuasive.",
+          "isPlayer": true,
+          "destinationEntry": 5,
+          "conditions": [
+            {
+              "luaCondition": "CheckStatRoll(\"Charisma\", 15)"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "actor": "NPC",
+          "conversation": "CharismaTest",
+          "dialogueText": "*impressed* You seem confident! The guard is over there. Good luck!",
+          "isPlayer": false,
+          "conditions": [
+            {
+              "luaCondition": "CheckStatRoll(\"Charisma\", 15)"
+            }
+          ],
+          "sequences": [
+            {
+              "sequence": "SetVariable(\"Charisma\", GetVariable(\"Charisma\") + 1); ShowAlert(\"Your Charisma increased by 1!\");"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "actor": "NPC",
+          "conversation": "CharismaTest",
+          "dialogueText": "*skeptical* Hmm, maybe this isn't such a good idea after all...",
+          "isPlayer": false,
+          "conditions": [
+            {
+              "luaCondition": "!CheckStatRoll(\"Charisma\", 15)"
+            }
+          ],
+          "sequences": [
+            {
+              "sequence": "SetVariable(\"Reputation\", GetVariable(\"Reputation\") - 1); ShowAlert(\"Your Reputation decreased by 1!\");"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "actor": "Player",
+          "conversation": "CharismaTest",
+          "dialogueText": "I'll try, but no promises.",
+          "isPlayer": true,
+          "destinationEntry": 8
+        },
+        {
+          "id": 8,
+          "actor": "NPC",
+          "conversation": "CharismaTest",
+          "dialogueText": "Well, do your best. The guard can be quite stubborn.",
+          "isPlayer": false
+        },
+        {
+          "id": 9,
+          "actor": "Player",
+          "conversation": "CharismaTest",
+          "dialogueText": "Not interested.",
+          "isPlayer": true,
+          "destinationEntry": 10
+        },
+        {
+          "id": 10,
+          "actor": "NPC",
+          "conversation": "CharismaTest",
+          "dialogueText": "Suit yourself. Maybe someone else will help me then.",
+          "isPlayer": false
+        }
+      ]
+    }
+  ]
+}

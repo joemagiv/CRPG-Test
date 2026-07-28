@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+---
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 11111111111111111111111111111111}
+  - component: {fileID: 22222222222222222222222222222222}
+  - component: {fileID: 33333333333333333333333333333333}
+  - component: {fileID: 44444444444444444444444444444444}
+  m_Layer: 0
+  m_Name: NPC_Basic
+  m_TagString: NPC
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u! 1 &11111111111111111111111111111111
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43434343434343434343434343434343}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 43434343434343434343434343434343}
+  m_RootOrder: 0
+  m_DefaultItem: {fileID: 0}
+  m_InstanceID: 0
+--- !u! 114 &22222222222222222222222222222222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43434343434343434343434343434343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5f67c52d1564df4aad3e48c671e2b25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trigger: 0
+  delayOneFrame: 0
+  condition: {databaseName: , questName: , questState: 0, questEntryNumber: 1, questEntryState: 0, anotherQuestEntryNumber: 1, anotherQuestEntryState: 0, luaConditions: []}
+  setQuestState: 0
+  questName: 
+  questState: 0
+  setQuestEntryState: 0
+  questEntryNumber: 1
+  questEntryState: 0
+  setAnotherQuestEntryState: 0
+  anotherQuestEntryNumber: 1
+  anotherQuestEntryState: 0
+  luaCode: 
+  conversation: 
+  entry: 0
+  actor: 
+  conversation: 
+  entry: 0
+  barkString: 
+  sequence: 
+  saveToPlayerPrefs: 0
+  saveKey: 
+  saveValue: 
+  sendFungusMessage: {messageName: , messageData: }
+  sendPlaymakerEvent: 
+  sendPlaymakerEventData: 
+  action: 0
+  parameter: 
+  value: 0
+  sendUnityEvent: 0
+  unityEvent: {m_PersistentCalls: {m_Calls: []}}
+--- !u! 114 &33333333333333333333333333333333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43434343434343434343434343434343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e0a7e4e5e7b441489d1b0f5e6b0b0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideName: 
+  m_OverrideUseMessage: Talk
+  m_MaxUseDistance: 5
+  m_UsableEvents: {fileID: 0}
+  m_OnSelect: {m_PersistentCalls: {m_Calls: []}}
+  m_OnDeselect: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUse: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUnuse: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption1: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption2: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption3: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption4: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption5: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption6: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption7: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption8: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption9: {m_PersistentCalls: {m_Calls: []}}
+  m_OnUseOption10: {m_PersistentCalls: {m_Calls: []}}
+--- !u! 114 &44444444444444444444444444444444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43434343434343434343434343434343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d864a67dd92e7234dbef49db72fa0d90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  npcName: Generic NPC
+  dialogueColor: {r: 1, g: 1, b: 1, a: 1}
+  conversationEntry: 
+  visualIndicator: {fileID: 0}
+  interactionRange: 5
+  highlightMaterial: {fileID: 0}
+  clickToTalk: 1
+--- !u! 1001 &43434343434343434343434343434343
+Prefab

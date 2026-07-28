@@ -1,0 +1,11 @@
+Title,ID,Actor,Conversation,DialogueText,IsPlayer,IsStart,DestinationEntry,Conditions,Sequences
+CharismaTest,1,NPC,CharismaTest,"Hello there, traveler! I have a proposition for you.",FALSE,TRUE,,,
+CharismaTest,2,Player,CharismaTest,"I'm listening.",TRUE,FALSE,3,,
+CharismaTest,3,NPC,CharismaTest,"Excellent! I need someone to convince the town guard to let my shipment through. Are you up for the task?",FALSE,FALSE,,,
+CharismaTest,4,Player,CharismaTest,"Absolutely! I'm very persuasive.",TRUE,FALSE,5,"CheckStatRoll(\"Charisma\", 15)",
+CharismaTest,5,NPC,CharismaTest,"*impressed* You seem confident! The guard is over there. Good luck!",FALSE,FALSE,,,"CheckStatRoll(\"Charisma\", 15)","SetVariable(\"Charisma\", GetVariable(\"Charisma\") + 1); ShowAlert(\"Your Charisma increased by 1!\");"
+CharismaTest,6,NPC,CharismaTest,"*skeptical* Hmm, maybe this isn't such a good idea after all...",FALSE,FALSE,,,"!CheckStatRoll(\"Charisma\", 15)","SetVariable(\"Reputation\", GetVariable(\"Reputation\") - 1); ShowAlert(\"Your Reputation decreased by 1!\");"
+CharismaTest,7,Player,CharismaTest,"I'll try, but no promises.",TRUE,FALSE,8,,
+CharismaTest,8,NPC,CharismaTest,"Well, do your best. The guard can be quite stubborn.",FALSE,FALSE,,,
+CharismaTest,9,Player,CharismaTest,"Not interested.",TRUE,FALSE,10,,
+CharismaTest,10,NPC,CharismaTest,"Suit yourself. Maybe someone else will help me then.",FALSE,FALSE,,,
