@@ -138,6 +138,9 @@ public class NPCController : MonoBehaviour
 
     /// <summary>
     /// Click-to-talk: starts the conversation when the player clicks the NPC.
+    /// When <see cref="clickToTalk"/> is false the click is handled by the
+    /// ClickableObject component on the same object, which shows the Interact
+    /// menu (Inspect / Use / Talk) first.
     /// </summary>
     void OnMouseDown()
     {

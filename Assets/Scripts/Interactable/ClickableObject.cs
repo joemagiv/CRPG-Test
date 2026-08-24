@@ -1,20 +1,43 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using TMPro;
 
+using PixelCrushers.DialogueSystem;
+
 /// <summary>
-/// Component that makes an object clickable with hover highlighting and text display
+/// Component that makes an object clickable with hover highlighting and text display.
+/// When a DialogueSystemTrigger is present on the same GameObject (or set via
+/// <see cref="dialogueTrigger"/>), the "Talk" interaction launches that trigger's
+/// conversation.
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class ClickableObject : MonoBehaviour
 {
     // Static reference to last clicked object for movement prevention
     public static ClickableObject lastClickedObject = null;
+
+    // Reference to the Dialogue System trigger that handles this object's conversation.
+    // Optional; wired automatically if a DialogueSystemTrigger is on this object.
+    public DialogueSystemTrigger dialogueTrigger;
     
     [Header("Display Settings")]
     public string objectName = "Object";
     public string objectDescription = "This is a clickable object.";
     public string objectId = ""; // For future database/CSV integration
+
+    [Header("Interaction Options")]
+    public string inspectText = "Inspect";
+    public string useText = "Use";
+    public string talkText = "Talk";
+    public string inspectResult = ""; // What happens when inspected (default to objectDescription if empty)
+    public string useResult = ""; // What happens when used
+    public string talkResult = ""; // What happens when talked to
+    
+    [Header("Item Properties")]
+    public bool isPickupable = false; // Can this item be picked up?
+    public string itemId = ""; // Unique identifier for inventory system
+    public int itemQuantity = 1; // Quantity if stackable
     
     [Header("Highlight Settings")]
     public Material highlightMaterial;
@@ -24,25 +47,42 @@ public class ClickableObject : MonoBehaviour
     
     [Header("Text Display Settings")]
     public float textDisplayDuration = 5f;
-    
+
+    // When true, the Talk interaction launches the dialogue conversation
+    // via the Dialogue System trigger instead of showing talkResult text.
+    public bool startConversationOnTalk = false;
+
     private Renderer objectRenderer;
     private bool isHighlighted = false;
     private Camera mainCamera;
-    
+
+    // --- New Input System support ------------------------------------------------
+    // Projects using UnityEngine.InputSystem (with InputSystemUIInputModule and no
+    // legacy StandaloneInputModule) never receive OnMouseEnter/OnMouseExit/OnMouseDown.
+    // A single static Update polls the mouse each frame, raycasts from the camera,
+    // and forwards hover/click events to the ClickableObject under the cursor.
+    private static Camera cachedMainCamera;
+    private static ClickableObject currentHover;
+    private static bool mainCameraDirty = true;
+    private static ClickableObject activeUpdater = null;
+    // --- end New Input System support -------------------------------------------
+
     void Awake()
     {
-        // Get renderer component
+        // Get renderer component (root first, then children for rigged models)
         objectRenderer = GetComponent<Renderer>();
-        
+        if (objectRenderer == null) objectRenderer = GetComponentInChildren<Renderer>();
+
         // Get or create highlight material
         if (highlightMaterial == null)
         {
             highlightMaterial = MaterialSetup.GetHighlightMaterial();
         }
-        
+
         // Get main camera
         mainCamera = Camera.main;
-        
+        if (mainCamera == null) mainCamera = Camera.main;
+
         // Initialize original material if we have a renderer
         if (objectRenderer != null && objectRenderer.material != null)
         {
@@ -56,8 +96,28 @@ public class ClickableObject : MonoBehaviour
             uiManager.AddComponent<SimpleObjectUI>();
             Debug.Log("Created SimpleObjectUI instance");
         }
+        
+        // Ensure InteractionMenu singleton exists
+        if (InteractionMenu.Instance == null)
+        {
+            GameObject interactionMenu = new GameObject("InteractionMenu");
+            interactionMenu.AddComponent<InteractionMenu>();
+            Debug.Log("Created InteractionMenu instance");
+        }
+        
+        // Ensure InventoryManager singleton exists
+        if (InventoryManager.Instance == null)
+        {
+            GameObject inventoryManager = new GameObject("InventoryManager");
+            inventoryManager.AddComponent<InventoryManager>();
+            Debug.Log("Created InventoryManager instance");
+        }
 
         Debug.Log($"ClickableObject initialized on {gameObject.name}. Renderer: {objectRenderer != null}, Material: {highlightMaterial != null}");
+
+        // Auto-wire the Dialogue System trigger if one is on this object.
+        if (dialogueTrigger == null) dialogueTrigger = GetComponent<DialogueSystemTrigger>();
+        if (dialogueTrigger != null) startConversationOnTalk = true;
     }
     
     /// <summary>
@@ -147,14 +207,202 @@ public class ClickableObject : MonoBehaviour
         if (ShouldIgnoreMouseEvent())
             return;
             
-        Debug.Log("OnMouseDown called - showing description");
-        // Don't hide hover name - let it fade out with description
-        // Show description popup (name stays visible)
-        ShowDescriptionPopup();
+        Debug.Log("OnMouseDown called - showing interaction menu");
+        
+        // Show interaction menu instead of description popup
+        if (InteractionMenu.Instance != null)
+        {
+            Vector3 menuPosition = transform.position + new Vector3(0, 2f, 0);
+            InteractionMenu.Instance.ShowMenu(this, menuPosition);
+        }
         
         // Prevent movement when clicking on objects
         ConsumeMouseClick();
     }
+
+    // --- New Input System polling ------------------------------------------------
+    // Every frame, if this is the first ClickableObject awake, refresh the main
+    // camera reference and run a hover/click poll. Only one ClickableObject ever
+    // updates; the static method is invoked from whichever instance is present.
+    void Update()
+    {
+        if (activeUpdater != this) return;
+        // Only poll when the legacy OnMouse* path is unavailable. If a legacy
+        // StandaloneInputModule is present, Unity's OnMouseDown/OnMouseEnter/
+        // OnMouseExit fire natively and we don't need to poll.
+        if (HasLegacyInputModule()) return;
+        PollNewInputSystem();
+    }
+
+    private static bool HasLegacyInputModule()
+    {
+        EventSystem es = EventSystem.current;
+        if (es == null) return false;
+        return es.GetComponent<StandaloneInputModule>() != null;
+    }
+
+    void OnEnable()
+    {
+        TryElectUpdater();
+    }
+
+    void OnDisable()
+    {
+        if (activeUpdater == this)
+        {
+            activeUpdater = null;
+            TryElectUpdater();
+        }
+    }
+
+    private static void TryElectUpdater()
+    {
+        if (activeUpdater != null) return;
+        ClickableObject[] all = Object.FindObjectsByType<ClickableObject>(FindObjectsSortMode.None);
+        foreach (var c in all)
+        {
+            if (c != null && c.isActiveAndEnabled)
+            {
+                activeUpdater = c;
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Static poll that handles hover enter/exit and click forwarding when the
+    /// project uses the new Unity Input System. Legacy OnMouse* callbacks are
+    /// invoked by Unity directly only under the legacy input module, so this
+    /// bridges that gap without requiring a scene-level input manager.
+    /// </summary>
+    private void PollNewInputSystem()
+    {
+        if (InputSystemCompatibility.IsPointerOverUI())
+        {
+            ClearHover();
+            return;
+        }
+
+        if (mainCameraDirty || cachedMainCamera == null)
+        {
+            cachedMainCamera = Camera.main;
+            mainCameraDirty = false;
+        }
+
+        if (cachedMainCamera == null) return;
+
+        ClickableObject hitObject = null;
+        Mouse currentMouse = Mouse.current;
+        if (currentMouse != null)
+        {
+            Ray ray = cachedMainCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+            RaycastHit hit;
+            // LayerMask of ~0 catches the Default layer the NPC is on.
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~0))
+            {
+                hitObject = hit.collider.GetComponentInParent<ClickableObject>();
+            }
+        }
+        else
+        {
+            // Fallback: legacy mouse for the editor / no-input-system path.
+            Vector3 mousePos = Input.mousePosition;
+            Ray ray = cachedMainCamera.ScreenPointToRay(mousePos);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+            {
+                hitObject = hit.collider.GetComponentInParent<ClickableObject>();
+            }
+        }
+
+        if (hitObject != currentHover)
+        {
+            if (currentHover != null) currentHover.OnMouseExitInputSystem();
+            currentHover = hitObject;
+            if (currentHover != null) currentHover.OnMouseEnterInputSystem();
+        }
+
+        if (currentMouse != null && currentMouse.leftButton.wasPressedThisFrame)
+        {
+            if (currentHover != null)
+            {
+                currentHover.OnMouseDownInputSystem();
+            }
+        }
+    }
+
+    private static void ClearHover()
+    {
+        if (currentHover != null)
+        {
+            currentHover.OnMouseExitInputSystem();
+            currentHover = null;
+        }
+    }
+    // --- end New Input System polling -------------------------------------------
+
+    /// <summary>
+    /// Input-System-facing hover enter. Mirrors OnMouseEnter for projects using
+    /// the new Unity Input System (which doesn't invoke OnMouseEnter).
+    /// </summary>
+    public void OnMouseEnterInputSystem()
+    {
+        if (ShouldIgnoreMouseEvent())
+            return;
+
+        SetHighlight(true);
+        ShowHoverName();
+    }
+
+    /// <summary>
+    /// Input-System-facing hover exit. Mirrors OnMouseExit for projects using
+    /// the new Unity Input System.
+    /// </summary>
+    public void OnMouseExitInputSystem()
+    {
+        if (ShouldIgnoreMouseEvent())
+            return;
+
+        SetHighlight(false);
+        Debug.Log("OnMouseExit (input system) called - hiding hover name");
+
+        if (SimpleObjectUI.Instance == null || !SimpleObjectUI.Instance.IsDescriptionActive)
+        {
+            HideHoverName();
+        }
+        else
+        {
+            Debug.Log("Not hiding name - description is being shown");
+        }
+    }
+    
+    /// <summary>
+    /// Input-System-facing click. Mirrors OnMouseDown for projects using the new
+    /// Unity Input System. Shows the Interaction menu over this object.
+    /// Returns true if the click was handled.
+    /// </summary>
+    public bool OnMouseDownInputSystem()
+    {
+        if (ShouldIgnoreMouseEvent())
+            return false;
+
+        // Don't show the Interact menu while a conversation is already active.
+        if (PixelCrushers.DialogueSystem.DialogueManager.IsConversationActive)
+            return false;
+
+        Debug.Log("OnMouseDown (input system) called - showing interaction menu");
+
+        if (InteractionMenu.Instance != null)
+        {
+            Vector3 menuPosition = transform.position + new Vector3(0, 2f, 0);
+            InteractionMenu.Instance.ShowMenu(this, menuPosition);
+        }
+
+        ConsumeMouseClick();
+        return true;
+    }
+
+    // --- New Input System polling ------------------------------------------------
     
     /// <summary>
     /// Enable or disable the highlight effect
@@ -210,6 +458,21 @@ public class ClickableObject : MonoBehaviour
         {
             SimpleObjectUI.Instance.HideDescription();
         }
+    }
+
+    /// <summary>
+    /// Start the conversation associated with this object's Dialogue System trigger,
+    /// if one is present. Returns true if a conversation was started.
+    /// </summary>
+    public bool StartConversation()
+    {
+        if (dialogueTrigger != null && dialogueTrigger.enabled)
+        {
+            // OnUse(Transform) starts the trigger's conversation when trigger == OnUse.
+            dialogueTrigger.OnUse((Transform)null);
+            return true;
+        }
+        return false;
     }
     
     /// <summary>

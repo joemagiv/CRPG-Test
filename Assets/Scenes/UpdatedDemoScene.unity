@@ -149101,7 +149101,8 @@ MonoBehaviour:
   conversationEntry: New Conversation 1
   visualIndicator: {fileID: 0}
   interactionRange: 5
-  clickToTalk: 1
+  highlightMaterial: {fileID: 0}
+  clickToTalk: 0
 --- !u!65 &1602970643
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -149244,6 +149245,15 @@ MonoBehaviour:
   objectName: Tester McGee
   objectDescription: 
   objectId: 
+  inspectText: Inspect
+  useText: Use
+  talkText: Talk
+  inspectResult: 
+  useResult: 
+  talkResult: 
+  isPickupable: 0
+  itemId: 
+  itemQuantity: 1
   highlightMaterial: {fileID: 0}
   originalMaterial: {fileID: 0}
   highlightOutlineWidth: 0.02
@@ -179622,6 +179632,37 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1.9810001, z: -0.16000001}
   m_TimeToStationary: 0.5
+--- !u!1 &1898039117
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1898039118}
+  m_Layer: 0
+  m_Name: MCPConnectivityTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1898039118
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1898039117}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1898561097 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1184270155645972, guid: e0fedf4e86585184ab349b990d268f7a, type: 3}
@@ -180735,6 +180776,15 @@ MonoBehaviour:
   objectName: Roadmaster 5000
   objectDescription: 'The finest in cyber-motoring for the discerning driver. '
   objectId: 
+  inspectText: Inspect
+  useText: Use
+  talkText: Talk
+  inspectResult: The finest in cyber-motoring for the discerning driver.
+  useResult: 
+  talkResult: 
+  isPickupable: 0
+  itemId: 
+  itemQuantity: 1
   highlightMaterial: {fileID: 0}
   originalMaterial: {fileID: 0}
   highlightOutlineWidth: 0.02
@@ -208352,3 +208402,4 @@ SceneRoots:
   - {fileID: 1605155343}
   - {fileID: 6936262}
   - {fileID: 1602069595}
+  - {fileID: 1898039118}
